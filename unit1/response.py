@@ -6,6 +6,7 @@ from time import time
 from openai import OpenAI
 
 from usage import print_usage
+from dotenv import load_dotenv
 
 
 def main(model: str, prompt: str):
@@ -24,6 +25,7 @@ def main(model: str, prompt: str):
 
 # Launch app
 if __name__ == "__main__":
+    load_dotenv()
     parser = argparse.ArgumentParser('AI Response')
     parser.add_argument('prompt_file', type=Path)
     parser.add_argument('--model', default='gpt-5-nano')

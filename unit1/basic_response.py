@@ -11,9 +11,11 @@ def main():
     model = "gpt-5-nano"
     response = client.responses.create(
         model=model,
-        input="Hello, what is the average velocity of un unladen swallow?",
-        reasoning={'effort': 'low'}
-    )
+        input = """I'm having trouble with my python script and getting the following error: \
+SyntaxWarning: invalid escape sequence '\g'
+  with open("unit1\game-classification-instructions.md", 'r') as f: 
+    """,
+    reasoning={'effort': 'low'})
     print(f'Took {round(time() - start, 2)} seconds')
     print_usage(model, response.usage)
     print(response.output_text)
