@@ -5,16 +5,14 @@ from dotenv import load_dotenv
 from usage import print_usage
 
 
-def main():
+def main(input:str):
     client = Client()
     start = time()
+    # model = "gpt-5-nano"
     model = "gpt-5-nano"
     response = client.responses.create(
         model=model,
-        input = """I'm having trouble with my python script and getting the following error: \
-SyntaxWarning: invalid escape sequence '\g'
-  with open("unit1\game-classification-instructions.md", 'r') as f: 
-    """,
+        input = input,
     reasoning={'effort': 'low'})
     print(f'Took {round(time() - start, 2)} seconds')
     print_usage(model, response.usage)
@@ -23,4 +21,16 @@ SyntaxWarning: invalid escape sequence '\g'
 
 if __name__ == '__main__':
     load_dotenv()
-    main()
+    input = """# GUI for chatgpt via API
+
+I want a one file executable bash script for setting up a simple typescript boiler plate. 
+
+Start by making a new folder, navigating to that folder and using npm install the necessary typescript dependencies.
+
+At the end of the executable, instead of asking me for input on what next steps to take, include a code to open the new folder in vscode.
+
+I want the folder location relative to the current location to be the following:
+-------------------
+../GUI
+    """
+    main(input)

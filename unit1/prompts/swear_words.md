@@ -1,0 +1,1 @@
+I manage the OBS for a church service live stream and the captions software does not always sanitize out vulgarity. I need a enumerated list of the top 100 most vulgar english words and substitutes so that I can easily paste it into the closed captions software. I need this file in json format
