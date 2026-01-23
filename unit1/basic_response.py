@@ -21,16 +21,11 @@ def main(input:str):
 
 if __name__ == '__main__':
     load_dotenv()
-    input = """# GUI for chatgpt via API
+    # input = """What is the 1000th number in the fibanacci sequence. Assume F0 = 0, F1 = 1. Please return only the number. Instead of returning text or some other type of response, only respond with the full 300 digit number.
+    # """
 
-I want a one file executable bash script for setting up a simple typescript boiler plate. 
+    with open("unit1/prompts/sequential_task4.md", 'r') as f:
+        input = f.read()
+        f.close()
 
-Start by making a new folder, navigating to that folder and using npm install the necessary typescript dependencies.
-
-At the end of the executable, instead of asking me for input on what next steps to take, include a code to open the new folder in vscode.
-
-I want the folder location relative to the current location to be the following:
--------------------
-../GUI
-    """
     main(input)
