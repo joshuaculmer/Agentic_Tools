@@ -1,0 +1,14 @@
+# ChatBot Configuration File
+# Edit these values to change bot behavior without using command line args
+
+# Model to use for chat
+model: gpt-3.5-turbo
+
+# Path to the system prompt file
+prompt_file: unit1/prompts/secret_system_prompt.md
+
+# Use web interface (true) or console mode (false)
+use_web: true
+
+# Reasoning effort level: low, medium, or high
+reasoning_effort: low
