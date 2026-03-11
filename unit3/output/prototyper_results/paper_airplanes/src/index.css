@@ -1,0 +1,407 @@
+/**********************************************
+ * src/index.css
+ * Global styles — pastel theme, typography,
+ * layout helpers, spacing scale, and print rules
+ *
+ * Sections:
+ *  - Theme variables (pastel palette)
+ *  - Typography and base layout
+ *  - Spacing scale (explicit 8–11 tokens)
+ *  - Layout helpers and utilities
+ *  - Accessibility / contrast helpers
+ *  - Responsive adjustments
+ *  - Print rules
+ **********************************************/
+
+/* =========================
+   Theme Variables (Pastel)
+   =========================
+   Use these variables everywhere in the app to ensure
+   a consistent pastel theme. Adjust here to change the
+   whole look.
+*/
+:root {
+  /* Pastel palette */
+  --color-bg: #fcf9ff;            /* very pale lavender */
+  --color-surface: #fffefc;       /* off-white surface */
+  --color-primary: #a8d5ff;       /* pastel blue */
+  --color-primary-600: #7fc2ff;   /* slightly stronger primary */
+  --color-secondary: #ffd6ea;     /* pastel pink */
+  --color-accent: #c7ffd8;        /* pastel mint */
+  --color-success: #c8f7d4;       /* pastel green */
+  --color-warning: #fff0c2;       /* pastel yellow */
+  --color-danger: #ffd1d1;        /* pastel red */
+  --color-muted: #bfc7d1;         /* muted grey-blue */
+  --color-text: #28323a;          /* dark desaturated for readable text */
+  --color-heading: #152028;       /* stronger heading color */
+
+  /* Semantic background combos */
+  --bg-card: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(248,248,250,0.8));
+  --bg-muted: #f6f8fa;
+
+  /* Transparency helpers */
+  --trans-10: rgba(40,50,58,0.1);
+  --trans-20: rgba(40,50,58,0.2);
+
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+
+  /* Elevation (soft) */
+  --shadow-sm: 0 2px 6px var(--trans-10);
+  --shadow-md: 0 8px 20px var(--trans-10);
+
+  /* Typographic scale (base font size comfortable on screen) */
+  --font-family-sans: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-serif: Georgia, "Times New Roman", serif;
+  --font-size-base: 18px;      /* larger than usual for readability */
+  --line-height-base: 1.6;
+  --heading-line-height: 1.25;
+
+  /* Spacing scale for children (explicit tokens 8–11) */
+  /* These are intentionally named numeric tokens to match design system
+     references that use 8..11 as meaningful spacing increments. */
+  --space-8: 8px;
+  --space-9: 12px;
+  --space-10: 16px;
+  --space-11: 24px;
+
+  /* Utility sizes */
+  --container-max-width: 1200px;
+}
+
+/* =========================
+   Base Typography & Layout
+   ========================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+html {
+  font-size: 100%; /* respects browser settings */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-print-color-adjust: exact;
+}
+
+/* Headings (readable, roomy) */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-heading);
+  line-height: var(--heading-line-height);
+  margin: 0 0 var(--space-10) 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: 2.25rem; } /* ~40.5px */
+h2 { font-size: 1.75rem; } /* ~31.5px */
+h3 { font-size: 1.375rem; } /* ~24.75px */
+h4 { font-size: 1.125rem; } /* ~20.25px */
+h5 { font-size: 1rem; }
+h6 { font-size: 0.9rem; }
+
+/* Paragraphs and lists */
+p {
+  margin: 0 0 var(--space-10) 0;
+  color: var(--color-text);
+}
+
+ul, ol {
+  margin: 0 0 var(--space-10) 1.25rem;
+  padding: 0;
+}
+
+/* Links */
+a {
+  color: var(--color-primary-600);
+  text-decoration: none;
+  outline: none;
+}
+a:focus, a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons & form inputs (sane defaults) */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+/* =========================
+   Spacing Utilities (8–11)
+   =========================
+   Utilities use the explicit tokens so components for children
+   can adopt a consistent spacing scale. These class names are
+   intentionally global and simple.
+*/
+.gap-8 { gap: var(--space-8); }
+.gap-9 { gap: var(--space-9); }
+.gap-10 { gap: var(--space-10); }
+.gap-11 { gap: var(--space-11); }
+
+.p-8 { padding: var(--space-8); }
+.p-9 { padding: var(--space-9); }
+.p-10 { padding: var(--space-10); }
+.p-11 { padding: var(--space-11); }
+
+.pt-8 { padding-top: var(--space-8); }
+.pr-8 { padding-right: var(--space-8); }
+.pb-8 { padding-bottom: var(--space-8); }
+.pl-8 { padding-left: var(--space-8); }
+
+/* repeated for 9–11 */
+.pt-9 { padding-top: var(--space-9); }
+.pr-9 { padding-right: var(--space-9); }
+.pb-9 { padding-bottom: var(--space-9); }
+.pl-9 { padding-left: var(--space-9); }
+
+.pt-10 { padding-top: var(--space-10); }
+.pr-10 { padding-right: var(--space-10); }
+.pb-10 { padding-bottom: var(--space-10); }
+.pl-10 { padding-left: var(--space-10); }
+
+.pt-11 { padding-top: var(--space-11); }
+.pr-11 { padding-right: var(--space-11); }
+.pb-11 { padding-bottom: var(--space-11); }
+.pl-11 { padding-left: var(--space-11); }
+
+/* Margin helpers */
+.m-8 { margin: var(--space-8); }
+.mb-10 { margin-bottom: var(--space-10); }
+
+/* =========================
+   Layout Helpers
+   ========================= */
+
+/* Container */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-10);
+  padding-right: var(--space-10);
+  max-width: var(--container-max-width);
+}
+
+/* Fluid container for edge-to-edge components */
+.container-fluid {
+  width: 100%;
+  padding-left: var(--space-10);
+  padding-right: var(--space-10);
+}
+
+/* Simple responsive grid (1–3 columns) */
+.grid {
+  display: grid;
+  gap: var(--space-10);
+}
+.grid.columns-1 { grid-template-columns: 1fr; }
+.grid.columns-2 { grid-template-columns: repeat(2, 1fr); }
+.grid.columns-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* Flex helpers */
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-col { display: flex; flex-direction: column; }
+
+/* Stack helper (vertical rhythm for lists of children) */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+/* Card component baseline */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-10);
+  border: 1px solid var(--trans-10);
+}
+
+/* Visually hidden (screen-reader only) */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* =========================
+   Accessibility / Contrast Helpers
+   ========================= */
+
+/* Default text-on-background helpers to ensure readable text on colored backgrounds. */
+.text-on-primary { color: #082033; }    /* dark text chosen for pastel primary */
+.bg-primary { background-color: var(--color-primary); color: var(--color-heading); }
+.bg-secondary { background-color: var(--color-secondary); color: var(--color-heading); }
+.bg-accent { background-color: var(--color-accent); color: var(--color-heading); }
+
+/* Generic outline focus for keyboard users */
+:focus {
+  outline: 3px solid var(--color-primary-600);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Contrast helpers using color-contrast() where supported.
+   Fallback colors are provided for browsers without support.
+   When supported, `.auto-contrast` will compute the best readable
+   color (from the provided list) over the element's background.
+*/
+.auto-contrast {
+  /* Fallback: ensure something usable in older browsers */
+  color: var(--color-text);
+}
+
+/* Use Color 4 color-contrast function if supported. */
+@supports (color: color-contrast(var(--color-bg) vs (black white))) {
+  /* Apply automatic contrast for text within elements that have a background color.
+     Note: this requires the element to set an inline or computed background-color. */
+  .auto-contrast {
+    /* Try prefer dark then light — the list order determines preference if both pass */
+    color: color-contrast(currentColor vs (var(--color-text), #000, #fff));
+  }
+
+  /* Utility to explicitly choose best text color for a given background */
+  .auto-contrast--bg {
+    color: color-contrast(background-color vs (var(--color-text), #000, #fff));
+  }
+}
+
+/* Simple visual indicators for manual contrast checking (dev-time):
+   Add .contrast-check to an element to show a faint outline to help
+   spot low-contrast areas during design / QA. */
+.contrast-check {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5) inset, 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+/* =========================
+   Responsive rules
+   ========================= */
+
+/* Mobile-first — stack columns on small screens */
+@media (max-width: 599px) {
+  .grid.columns-2 { grid-template-columns: 1fr; }
+  .grid.columns-3 { grid-template-columns: 1fr; }
+  .container { padding-left: var(--space-9); padding-right: var(--space-9); }
+  h1 { font-size: 1.8rem; }
+}
+
+/* Tablet */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .grid.columns-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid.columns-3 { grid-template-columns: repeat(2, 1fr); }
+  .container { padding-left: var(--space-10); padding-right: var(--space-10); }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .grid.columns-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid.columns-3 { grid-template-columns: repeat(3, 1fr); }
+  .container { padding-left: var(--space-11); padding-right: var(--space-11); }
+}
+
+/* High-contrast / reduced-motion preferences */
+@media (prefers-contrast: more) {
+  body {
+    background: white;
+    color: #111;
+  }
+  :focus {
+    outline: 4px solid #000;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* =========================
+   Print rules
+   =========================
+   - Hide navigation/header/footer
+   - Force body background to white
+   - Ensure images and SVGs scale to page width
+   - Comfortable print font sizes
+*/
+@media print {
+  /* Hide UI chrome that is not relevant in print */
+  nav, header, footer, .no-print { display: none !important; }
+
+  /* Surface: always white on print */
+  body, html {
+    background: #fff !important;
+    color: #000 !important;
+    height: auto !important;
+  }
+
+  /* Use points for print sizing — comfortable, readable defaults */
+  body {
+    font-size: 12pt !important;
+    line-height: 1.35 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Headings slightly larger and compacted for print */
+  h1 { font-size: 20pt !important; margin-bottom: 6pt !important; }
+  h2 { font-size: 16pt !important; margin-bottom: 5pt !important; }
+  h3 { font-size: 13pt !important; margin-bottom: 4pt !important; }
+
+  /* Make images and svg scale to the page width (but keep aspect) */
+  img, svg {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+  }
+
+  /* Avoid breaking individual cards or important sections across pages */
+  .card, .no-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ensure links show URL in print for context */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+  }
+
+  /* Remove shadows and rounded corners for print clarity */
+  .card, .shadowless {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: 1px solid #ddd !important;
+  }
+}
+
+/* =========================
+   End of file
+   ========================= */

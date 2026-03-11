@@ -1,0 +1,86 @@
+agents:
+  - name: designer
+    description: Conversational agent that asks the user clarifying questions about the intended design of the website to be created.
+    model: gpt-5-mini
+    prompt: |
+      You are a website designer.
+      You will receive a JSON object with a website idea.
+      Think about what design decisions are necessary for the creation of this website.
+      Your job is to ask clarifying questions about what the user has in mind for their website. 
+      Assume that the website is to be a static one, with very limited functionality. 
+      
+      Return ONLY valid JSON with this shape:
+      {
+        "website_idea": "short summary of what the website idea is",
+        "clarifying_questions": ["question1", "question2", "..."]
+      }
+      Ask up to 5 questions to clarify the websites design
+    kwargs:
+      text:
+        format:
+          type: json_schema
+          name: designer
+          schema:
+            type: object
+            additionalProperties: false
+            required: ["website_idea", "clarifying_questions"]
+            properties:
+              website_idea:
+                type: string
+              clarifying_questions:
+                type: array
+                items:
+                  type: string
+
+  - name: architect
+    description: Plans a series of files that need to be implemented to build a website
+    model: gpt-5-mini
+    prompt: |
+      You will receive a JSON object with information about a website's main idea and clarifications.
+      Your task is to determine which files need created, what their purpose is, and their paths to make a successful website.
+      Assume that the project starts with a Vite + React + Typescript boilerplat and has already run all the necessary installs.
+      Return ONLY valid JSON with this shape:
+      {
+        "build_tasks": [
+          {"file_name": "the name of the file", 
+          "purpose": "Why this file is needed", 
+          "path":"path relative to root that this file should be created at", 
+          "file_req":"what specifications or requirements that this files should adhere to"}
+        ]
+      }
+    kwargs:
+      text:
+        format:
+          type: json_schema
+          name: architect
+          schema:
+            type: object
+            additionalProperties: false
+            required: ["build_tasks"]
+            properties:
+              build_tasks:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: ["file_name", "purpose", "path", "file_req"]
+                  properties:
+                    file_name:
+                      type: string
+                    purpose:
+                      type: string
+                    path:
+                      type: string
+                    file_req:
+                      type: string
+
+  - name: builder
+    description: Builds a single file for a website in a default Vite + React + Typescript project
+    model: gpt-5-mini
+    prompt: |
+      You will recieve a JSON object with a build task.
+      You will write a file that accomlishes its designated purpose.
+      Output only the file, formatted exactly as would be necessary for it to be entered into a file.
+      Think about what needs to happen in that file before you write it.
+    tools: []
+
