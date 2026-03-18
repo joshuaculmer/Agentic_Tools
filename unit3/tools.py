@@ -1,10 +1,26 @@
 import inspect
+import logging
 from types import UnionType
 from typing import Any, Callable, get_type_hints, Literal, get_origin, get_args, Union
 
 from openai.types.responses import FunctionToolParam
 
 _tools: dict[str, Callable] = {}
+logger = logging.getLogger(__name__)
+
+
+def _get_schema_type(_type: str):
+    type_map = {
+        'str': "string",
+        'int': "integer",
+        'float': "number",
+        'bool': "boolean",
+    }
+
+    if result := type_map.get(_type):
+        return {"type": result}
+
+    return None
 
 
 def _is_optional(annotation) -> bool:
@@ -23,18 +39,11 @@ def _get_strict_json_schema_type(annotation) -> dict:
             return _get_strict_json_schema_type(non_none_args[0])
         raise TypeError(f"Unsupported Union with multiple non-None values: {annotation}")
 
-    type_map = {
-        str: "string",
-        int: "integer",
-        float: "number",
-        bool: "boolean",
-    }
+    if result := _get_schema_type(str(annotation.__name__)):
+        return result
 
-    if annotation in type_map:
-        return {"type": type_map[annotation]}
-
-    if origin in type_map:
-        return {"type": type_map[origin]}
+    if result := _get_schema_type(str(origin.__name__)):
+        return result
 
     if origin is Literal:
         values = args
@@ -45,7 +54,7 @@ def _get_strict_json_schema_type(annotation) -> dict:
     raise TypeError(f"Unsupported parameter type: {annotation}")
 
 
-def generate_function_schema(func: Callable[..., Any]) -> FunctionToolParam:
+def _inspect_signature(func):
     sig = inspect.signature(func)
     type_hints = get_type_hints(func)
 
@@ -64,6 +73,25 @@ def generate_function_schema(func: Callable[..., Any]) -> FunctionToolParam:
 
         required.append(name)
         params[name] = schema_entry
+
+    return params, required
+
+
+def _parse_signature(signature: str):
+    # foo: int
+    # bar: tuple[str, str]
+    params = {}
+    required = []
+    for line in signature.splitlines():
+        name, ptype = line.split(':')
+        ptype = ptype.strip()
+        params[name] = _get_schema_type(ptype)
+        required.append(name)
+    return params, required
+
+
+def generate_function_schema(func: Callable[..., Any]) -> FunctionToolParam:
+    params, required = _inspect_signature(func)
 
     return {
         "type": "function",
@@ -102,5 +130,12 @@ class ToolBox:
             tls.append({'type': 'web_search'})
         return tls
 
-    def get_tool_function(self, tool_name: str) -> Callable | None:
-        return self._funcs.get(tool_name)
+    async def run_tool(self, tool_name: str, **kwargs):
+        logger.debug('TOOL %s(%s)', tool_name, kwargs)
+        tool = self._funcs.get(tool_name)
+        result = tool(**kwargs)
+        if inspect.iscoroutine(result):
+            result = await result
+
+        logger.debug('TOOL %s(%s) -> %s', tool_name, kwargs, result)
+        return result

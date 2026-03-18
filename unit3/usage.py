@@ -1,5 +1,10 @@
 # Pricing per 1M tokens (USD) for recent OpenAI models, fetched March 6, 2026 from https://developers.openai.com/api/docs/pricing.
+import logging
 import sys
+
+from openai.types.responses import ResponseUsage
+
+logger = logging.getLogger(__name__)
 
 PRICING = {
     'gpt-5.4': {'input': 2.25, 'cached': 0.225, 'output': 18.00},
@@ -26,59 +31,42 @@ PRICING = {
 }
 
 
-def _calculate_cost_usd(model, usage) -> float:
-    rates = PRICING.get(model)
-    if not rates:
-        return 0.0
-    input_cost = usage['input'] * rates['input']
-    cached_cost = usage['cached'] * rates.get('cached', rates['input'])
-    output_cost = usage['output'] * rates['output']
+def _calculate_cost_usd(totals: dict[str, dict]) -> float:
+    total = 0
+    for model, usage in totals.items():
+        rates = PRICING.get(model)
+        if not rates:
+            logger.warning('No pricing rates configured for model %s', model)
+            continue
+        total += usage['input'] * rates['input']
+        total += usage['cached'] * rates.get('cached', rates['input'])
+        total += usage['output'] * rates['output']
     # Prices are per 1M tokens.
-    return (input_cost + cached_cost + output_cost) / 1_000_000
+    return total / 1_000_000
 
 
-def _aggregate_usage(usages):
-    total = {'input': 0, 'cached': 0, 'output': 0, 'reasoning': 0}
-    for usage in usages:
-        total['input'] += usage.input_tokens
-        total['cached'] += usage.input_tokens_details.cached_tokens
-        total['output'] += usage.output_tokens
-        total['reasoning'] += usage.output_tokens_details.reasoning_tokens
+def _aggregate_usage(usages: list[tuple[str, ResponseUsage]]):
+    total = {}
+    for model, usage in usages:
+        if model not in total:
+            total[model] = {'input': 0, 'cached': 0, 'output': 0, 'reasoning': 0}
+        total[model]['input'] += usage.input_tokens
+        total[model]['cached'] += usage.input_tokens_details.cached_tokens
+        total[model]['output'] += usage.output_tokens
+        total[model]['reasoning'] += usage.output_tokens_details.reasoning_tokens
     return total
 
 
-def print_usage(model, usage, file=sys.stderr):
+def print_usage(usages: list[tuple[str, ResponseUsage]], file=sys.stderr):
     print(' Usage '.center(30, '-'), file=file)
-    print('Model:', model, file=file)
+    totals = _aggregate_usage(usages)
+    for model, total in totals.items():
+        print(model.center(30, '~'), file=file)
+        for key, value in total.items():
+            print(f'{key.title()} (tokens):', value, file=file)
+        cost = _calculate_cost_usd({model: total})
+        print(f'{model} cost (USD): ${cost:.6f}', file=file)
 
-    if not isinstance(usage, list):
-        usage = [usage]
-    total = _aggregate_usage(usage)
-
-    for key, value in total.items():
-        print(f'{key.title()} (tokens):', value, file=file)
-
-    cost = _calculate_cost_usd(model, total)
-    if cost is not None:
-        print(f'Total cost (USD): ${cost:.6f}', file=file)
-    else:
-        print('Total cost: n/a (pricing unavailable for model)', file=file)
-
-
-def format_usage_markdown(model, usage) -> str:
-    total_usage = _aggregate_usage(usage)
-    cost = _calculate_cost_usd(model, total_usage)
-    token_table = '\n'.join(
-        f"| {key.title()} | {value} |"
-        for key, value in total_usage.items()
-    )
-
-    out = (
-        "# Usage\n\n"
-        f"**Model**: `{model}`\n\n"
-        "|    | Tokens |\n"
-        "|----|--------|\n"
-        + token_table +
-        f"\n\n**Total cost**: ${cost:.6f}\n"
-    )
-    return out
+    cost = _calculate_cost_usd(totals)
+    print('~'*30, file=file)
+    print(f'Total cost (USD): ${cost:.6f}', file=file)
