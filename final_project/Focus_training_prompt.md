@@ -1,0 +1,11 @@
+Progressive Attention Training
+I'm a developer in the design phase of a tool focused on progressive attention training. I've done research into cognitive improvement and my north star is building software that genuinely improves how people think and focus — not engagement metrics, not streaks, not gamification for its own sake. I'm motivated by the observation that most modern software shortens cognitive engagement rather than deepens it, and I want to build something that runs counter to that.
+The core concept: sustained focus is a trainable skill, not a fixed trait. The software should work like interval training for attention — starting with short bursts of unbroken focus and progressively extending duration and cognitive demand over time. The user engages with cognitively demanding tasks inside the app, the system tracks focus quality, adapts challenge level, and builds the habit of returning attention after it drifts.
+Some design tensions we've already identified that I want to explore rather than relitigate:
+
+Measuring "unbroken focus" without being invasive is genuinely hard. Behavioral proxies like tab switches, typing cadence, and app-switching are imperfect but available. Task-based inference through comprehension checks is another angle. I'm open to self-report with accountability as a simpler starting point.
+The LLM angle that seems most natural here is not as a focus tracker but as the content layer — dynamically generating and calibrating the material the user is focusing on. An agentic loop where one agent tracks performance signals, another adjusts difficulty, and another generates content seems like a reasonable starting architecture, but I want to pressure-test that.
+The goal is training the habit of returning attention after drift, not punishing distraction.
+
+I have hands-on experience with RAG, vector databases, prompt engineering, multi-agent workflows, and MCP. I want to use these tools where they provide genuine value and I need you to be direct with me when they don't. I don't want to overengineer this.
+Let's have a conversational design discussion. Don't start from scratch — start from the tensions above. Ask me questions that help narrow what the core user experience actually looks like moment to moment, and where the hardest unsolved design problems are. Push back on my assumptions.

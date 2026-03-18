@@ -1,0 +1,11 @@
+Idea Consolidation
+I'm a developer in the design phase of a tool focused on idea consolidation — the problem that people encounter interesting concepts and insights constantly but rarely revisit them in a way that produces lasting understanding or changed thinking. I've done research into cognitive improvement and this problem sits at the intersection of spaced repetition, personal knowledge management, and active recall — all of which have good evidence behind them but limited adoption outside of already-disciplined users.
+Some important framing we've already worked through that I don't want to relitigate:
+
+Journaling and spaced repetition already work well for disciplined people. I'm not rebuilding those. The interesting question is whether software can do something genuinely additive for people who won't naturally do it.
+The most promising angle we identified is not reminding users of ideas but synthesizing across them — surfacing non-obvious connections between something captured six months ago and something the user is thinking about today. That's hard to do manually and is where a vector database plus LLM layer seems like it could genuinely earn its place.
+I'm skeptical of this one as a standalone product and more interested in whether it works as a layer on top of tools people already use. That's an open design question.
+LLM integration here is less obvious than in the other two ideas — I want you to pressure-test whether it genuinely improves the core loop or just adds complexity to something that journaling already solves adequately.
+
+I have hands-on experience with RAG, vector databases, prompt engineering, multi-agent workflows, and MCP. Vector databases seem like a natural fit here but I want that assumption challenged. Be direct if the right answer is a simpler system.
+Let's have a conversational design discussion. Start from the hardest unresolved questions: what does the core user behavior actually look like, what does "consolidation" mean as a concrete interaction, and is there a genuine problem here that software solves better than a notebook. Don't let me build something impressive that doesn't actually improve how people think.

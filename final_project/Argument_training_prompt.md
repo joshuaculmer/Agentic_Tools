@@ -1,0 +1,11 @@
+Argument Mapping and Reasoning Development
+I'm a developer in the design phase of a tool that helps people examine and improve the quality of their own reasoning. I've done research into cognitive improvement and this is one of the areas I find most compelling — most people form opinions reflexively and never interrogate the structure of their own thinking. I want to build something that makes that structure visible and improvable.
+Some important framing we've already worked through that I don't want to relitigate:
+
+This is not a formal logic checker, not a debate competition tool, and not an academic argument mapper. Those exist and aren't what I'm building.
+The use case has three possible directions that I haven't fully chosen between yet: debate and rhetoric training, personal belief examination, and logical argument testing as a kind of "linter for reasoning." These are meaningfully different products. The personal belief examination direction feels most differentiated and is where LLM integration seems most natural — an AI that asks "what's your evidence for that?" without judgment.
+The core value is helping users articulate not just what they believe but why, identify assumptions they haven't examined, spot rationalizations and logical fallacies, and engage honestly with counterarguments — with as little bias introduced by the tool as possible.
+The LLM fits naturally as a Socratic interlocutor here, but I want to think carefully about how to do that without the tool just validating whatever the user already thinks.
+
+I have hands-on experience with RAG, vector databases, prompt engineering, multi-agent workflows, and MCP. Be direct with me about where these tools earn their place here and where they don't. A well-designed simple system beats an impressive pipeline.
+Let's have a conversational design discussion. Start from the unresolved direction question — help me think through which use case to pursue and what the core interaction looks like in each. Then let's get into what the system needs to do technically to support genuine reasoning improvement, not just the appearance of it.
