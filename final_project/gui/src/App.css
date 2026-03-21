@@ -23,12 +23,32 @@
   letter-spacing: -0.3px;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .status {
   font-size: 13px;
   padding: 3px 10px;
   border-radius: 999px;
   font-weight: 500;
 }
+
+.end-btn {
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.end-btn:hover:not(:disabled) { opacity: 0.85; }
+.end-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .status.online  { background: rgba(34,197,94,0.15); color: #16a34a; }
 .status.offline { background: rgba(239,68,68,0.12);  color: #dc2626; }
 
@@ -122,6 +142,9 @@
   line-height: 1.45;
   outline: none;
   transition: border-color 0.2s;
+  min-height: 44px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .input-row textarea:focus {
@@ -157,7 +180,7 @@
 }
 
 .input-row button {
-  align-self: center;
+  align-self: flex-start;
   padding: 10px 20px;
   border-radius: 12px;
   border: none;

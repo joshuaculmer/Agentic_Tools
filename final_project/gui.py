@@ -11,13 +11,29 @@ _agent_to_gui: asyncio.Queue
 _gui_to_agent: asyncio.Queue
 _connected: set = set()
 
+_END_SENTINEL = object()
+_RESTART_SENTINEL = object()
+
+
+class ConversationEndedError(Exception):
+    pass
+
+
+class ConversationRestartError(Exception):
+    pass
+
 
 async def _handler(websocket):
     _connected.add(websocket)
     try:
         async for raw in websocket:
             data = json.loads(raw)
-            await _gui_to_agent.put(data['text'])
+            if data.get('type') == 'end':
+                await _gui_to_agent.put(_END_SENTINEL)
+            elif data.get('type') == 'restart':
+                await _gui_to_agent.put(_RESTART_SENTINEL)
+            else:
+                await _gui_to_agent.put(data['text'])
     finally:
         _connected.discard(websocket)
 
@@ -56,5 +72,19 @@ async def send_status(text: str):
     await _agent_to_gui.put({'type': 'status', 'text': text})
 
 
+def drain_input_queue():
+    """Discard any queued user messages (call before restarting the agent)."""
+    while not _gui_to_agent.empty():
+        try:
+            _gui_to_agent.get_nowait()
+        except asyncio.QueueEmpty:
+            break
+
+
 async def receive() -> str:
-    return await _gui_to_agent.get()
+    msg = await _gui_to_agent.get()
+    if msg is _END_SENTINEL:
+        raise ConversationEndedError()
+    if msg is _RESTART_SENTINEL:
+        raise ConversationRestartError()
+    return msg

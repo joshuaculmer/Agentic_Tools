@@ -1,9 +1,13 @@
 import argparse
 import asyncio
+import json
 import logging
 import os
+import shutil
+import subprocess
 import sys
 import webbrowser
+from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -11,11 +15,28 @@ import gui
 import yaml
 from openai import AsyncOpenAI
 
+from gui import ConversationEndedError, ConversationRestartError
 from run_agent import run_agent, as_tool, Agent, current_agent, conclude
 from tools import ToolBox
 from usage import print_usage
 
 LOG_FORMAT = '%(filename)-10.10s %(levelname)-4.4s %(asctime)s %(message)s'
+
+OUTPUTS_DIR = Path(__file__).parent / 'Outputs'
+
+_conversation_log: list[dict] = []
+
+
+def _save_and_clear_log() -> None:
+    if not _conversation_log:
+        return
+    OUTPUTS_DIR.mkdir(exist_ok=True)
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    path = OUTPUTS_DIR / f'conversation_{timestamp}.json'
+    path.write_text(json.dumps(_conversation_log, indent=2), encoding='utf-8')
+    print(f'Saved conversation to {path}')
+    _conversation_log.clear()
+
 
 toolbox = ToolBox()
 toolbox.tool(conclude)
@@ -33,7 +54,9 @@ async def talk_to_user(message: str):
     _agent = current_agent.get()
     name = _agent['name'] if _agent else 'Agent'
     await gui.send(f"{name}: {message}\n")
+    _conversation_log.append({'role': 'agent', 'name': name, 'text': message})
     response = await gui.receive()
+    _conversation_log.append({'role': 'user', 'text': response})
     await gui.send_status('Thinking\u2026')
     return response
 
@@ -97,18 +120,33 @@ async def main(agent_config: Path, message: str):
 
     main_agent = next(agent for agent in agents if agent['name'] == 'main')
 
-    response = await run_agent(
-        client, toolbox, main_agent,
-        message, usage=usages
-    )
+    initial_message = message
+    while True:
+        try:
+            response = await run_agent(
+                client, toolbox, main_agent,
+                initial_message, usage=usages
+            )
+        except ConversationRestartError:
+            gui.drain_input_queue()
+            _save_and_clear_log()
+            initial_message = None
+            print('Restarting conversation…')
+            continue
+        except ConversationEndedError:
+            _save_and_clear_log()
+            print('Conversation ended by user.')
+            break
 
-    if response:
-        print(response)
-        print()
+        if response:
+            print(response)
+            print()
+        _save_and_clear_log()
+        break
 
     print_usage(usages)
 
-    
+
 
 
 def _configure_logging(debug: bool) -> None:
@@ -129,6 +167,20 @@ def _configure_logging(debug: bool) -> None:
         logging.getLogger(logger_name).setLevel(local_level)
 
 
+async def _wait_for_port(host: str, port: int, timeout: float = 30.0) -> None:
+    start = asyncio.get_event_loop().time()
+    while True:
+        try:
+            _, writer = await asyncio.open_connection(host, port)
+            writer.close()
+            await writer.wait_closed()
+            return
+        except (ConnectionRefusedError, OSError):
+            if asyncio.get_event_loop().time() - start > timeout:
+                raise TimeoutError(f"Frontend not ready after {timeout}s")
+            await asyncio.sleep(0.25)
+
+
 if __name__ == '__main__':
     load_dotenv()
     parser = argparse.ArgumentParser()
@@ -139,8 +191,37 @@ if __name__ == '__main__':
     _configure_logging(args.debug)
 
     async def _run():
-        await gui.start_server()
-        webbrowser.open('http://localhost:5173')
-        await main(args.agent_config, args.message)
+        gui_dir = Path(__file__).parent / 'gui'
+        npm = shutil.which('npm') or ('npm.cmd' if sys.platform == 'win32' else 'npm')
+        vite_proc = subprocess.Popen(
+            [npm, 'run', 'dev'],
+            cwd=gui_dir,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            print('Starting frontend...', flush=True)
+            await _wait_for_port('localhost', 5173)
+            await gui.start_server()
+            webbrowser.open('http://localhost:5173')
+            await main(args.agent_config, args.message)
+            print("Main is up and running")
+        finally:
+            if vite_proc.poll() is None:
+                if sys.platform == 'win32':
+                    subprocess.run(
+                        ['taskkill', '/F', '/T', '/PID', str(vite_proc.pid)],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                else:
+                    vite_proc.terminate()
+                try:
+                    vite_proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    vite_proc.kill()
 
-    asyncio.run(_run())
+    try:
+        asyncio.run(_run())
+    except KeyboardInterrupt:
+        pass

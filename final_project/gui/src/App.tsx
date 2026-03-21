@@ -16,6 +16,7 @@ export default function App() {
   const [statusText, setStatusText] = useState('')
   const wsRef = useRef<WebSocket | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     function connect() {
@@ -53,6 +54,24 @@ export default function App() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  function handleInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setInput(e.target.value)
+    const el = textareaRef.current
+    if (el) {
+      el.style.height = 'auto'
+      el.style.height = el.scrollHeight + 'px'
+    }
+  }
+
+  function startNew() {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
+    setMessages([])
+    setInput('')
+    setStatusText('')
+    if (textareaRef.current) textareaRef.current.style.height = 'auto'
+    wsRef.current.send(JSON.stringify({ type: 'restart' }))
+  }
+
   function submit() {
     const text = input.trim()
     if (!text || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
@@ -62,7 +81,7 @@ export default function App() {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && e.ctrlKey) {
       e.preventDefault()
       submit()
     }
@@ -71,10 +90,15 @@ export default function App() {
   return (
     <div className="chat-root">
       <header className="chat-header">
-        <h1>Logic Helper</h1>
-        <span className={`status ${connected ? 'online' : 'offline'}`}>
-          {connected ? 'Connected' : 'Connecting…'}
-        </span>
+        <div className="header-left">
+          <h1>Logic Helper</h1>
+          <span className={`status ${connected ? 'online' : 'offline'}`}>
+            {connected ? 'Connected' : 'Connecting…'}
+          </span>
+        </div>
+        <button className="end-btn" onClick={startNew} disabled={!connected}>
+          Start New
+        </button>
       </header>
 
       <main className="message-list">
@@ -99,11 +123,11 @@ export default function App() {
 
       <footer className="input-row">
         <textarea
+          ref={textareaRef}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
-          rows={5}
+          placeholder="Type a message… (Ctrl+Enter to send)"
         />
         <button onClick={submit} disabled={!connected}>
           Send

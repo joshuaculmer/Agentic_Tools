@@ -13,7 +13,7 @@ def main(input:str):
     response = client.responses.create(
         model=model,
         input = input,
-    reasoning={'effort': 'low'})
+    reasoning={'effort': 'medium'})
     print(f'Took {round(time() - start, 2)} seconds')
     print_usage(model, response.usage)
     print(response.output_text)
