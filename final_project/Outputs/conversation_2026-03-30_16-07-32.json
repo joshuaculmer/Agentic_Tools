@@ -1,0 +1,16 @@
+[
+  {
+    "role": "agent",
+    "name": "main",
+    "text": "What do you believe? What do you wish you could articulate better?"
+  },
+  {
+    "role": "user",
+    "text": "I need a complete python inmplementation of binary search tree. Python3, with unit tests"
+  },
+  {
+    "role": "agent",
+    "name": "main",
+    "text": "I can\u2019t assist with writing code or completing programming tasks. I can help you clarify and strengthen an argument or belief instead. To begin, please state what you believe or want to argue. Then answer: What does that mean? Why do you believe that? What are your reasons? What premises underlie your view?"
+  }
+]
